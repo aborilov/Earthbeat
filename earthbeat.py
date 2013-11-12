@@ -1,12 +1,15 @@
 import os
 import urllib
+import datetime
 
 from google.appengine.api import users
-from google.appengine.ext import ndb
-from openid import LoginPage
+from google.appengine.ext import db
+from google.appengine.api import memcache
 
 import jinja2
 import webapp2
+
+import counter
 
 
 JINJA_ENVIRONMENT = jinja2.Environment(
@@ -24,6 +27,13 @@ openIdProviders = (
     # add more here
 )
 
+memcache.add(key="smile_count", value="0")
+memcache.add(key="cry_count", value="0")
+
+class Mood(db.Model):
+    mood = db.StringProperty(indexed=True)
+    name = db.StringProperty(required=True)
+    date = db.DateProperty()
 
 class MainPage(webapp2.RequestHandler):
 
@@ -33,6 +43,23 @@ class MainPage(webapp2.RequestHandler):
             template_values = {
                 'user': user.nickname(),
             }
+            mood = self.request.get('mood')
+            if mood:
+                template_values['mood'] = mood
+                if mood == "cry":
+                    print mood
+                    counter.increment("cry_count")
+                else:
+                    counter.increment("smile_count")
+                # m = Mood(mood=mood,
+                #          name=user.user_id(),
+                #          date=datetime.datetime.now().date())
+                # m.put()
+            else:
+                template_values['mood'] = ""
+
+            template_values['smile_count'] = counter.get_count("smile_count")
+            template_values['cry_count'] = counter.get_count("cry_count")
 
             template = JINJA_ENVIRONMENT.get_template('index.html')
             self.response.write(template.render(template_values))
@@ -44,8 +71,10 @@ class MainPage(webapp2.RequestHandler):
                 self.response.out.write('[<a href="%s">%s</a>]' % (
                     users.create_login_url(federated_identity=p_url), p_name))
 
+    def post(self):
+        return self.get()
+
 
 application = webapp2.WSGIApplication([
     ('/', MainPage),
-    ('/login', LoginPage),
 ], debug=True)

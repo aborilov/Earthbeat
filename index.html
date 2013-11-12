@@ -1,8 +1,39 @@
 <!DOCTYPE html>
 {% autoescape true %}
 <html>
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css">
+<!-- Optional theme -->
+<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap-theme.min.css">
+
   <body>
-Hello World, {{ user }}
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://code.jquery.com/jquery.js"></script>
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.2/js/bootstrap.min.js"></script>
+    <h1>Hello World, {{ user }}</h1>
+    <br>
+    {{ mood }}
+    <div class="row">
+      <div class="col-xs-6" align="right">
+        <div class="row" onclick='$("#smile_form").submit()'>
+          <form method='post' role="form" id="smile_form">
+          <input type="hidden" name="mood" value="smile">
+          <div class="col-xs-9" align="center"><img src="/images/smile.jpg"/></div>
+          <div class="col-xs-9" align="center">{{ smile_count }}</div>
+          </form>
+        </div>
+      </div>
+      <div class="col-xs-6">
+        <div class="row" onclick='$("#cry_form").submit()'>
+          <form method='post' role="form" id="cry_form">
+            <input type="hidden" name="mood" value="cry">
+            <div class="col-xs-12" align="center"><img src="/images/cry.jpg"/></div>
+            <div class="col-xs-12" align="center">{{ cry_count }}</div>
+          </form>
+        </div>
+      </div>
+    </div>
   </body>
 </html>
 {% endautoescape %}
