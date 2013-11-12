@@ -11,26 +11,37 @@
     <script src="https://code.jquery.com/jquery.js"></script>
     <!-- Latest compiled and minified JavaScript -->
     <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.2/js/bootstrap.min.js"></script>
-    <h1>Hello, {{ user }}</h1>
-    <br>
-    {{ mood }}
+    <h1 class="text-center">Hello, {{ user }}.
+    {% if mood %}
+     <span id="mood"> You are {{ mood }} today </span>
+    {% else %}
+      <span id="mood">What is your mood today?</span>
+    {% endif %}
+    </h1>
     <div class="row">
       <div class="col-md-3 col-xs-6 col-md-offset-3">
         <div class="row" id="smile_row">
           <div class="col-xs-12 text-center">
-            <img class="img-circle" src="https://lh6.googleusercontent.com/T_p3KIgpwln22abjEAHTe7cKz0y8ssU4pVL71XLKtgXKWQ9-qc3v--kbnbs8F9vZ4g=w1168-h763"/>
+            <img class="img-circle" src="/images/smile.png"/>
           </div>
           <div class="col-xs-12 text-center" id="smile_count">{{ smile_count }}</div>
         </div>
       </div>
       <div class="col-md-3 col-xs-6">
         <div class="row" id="cry_row">
-            <div class="col-xs-12 text-center"><img class="img-circle" src="https://lh3.googleusercontent.com/MknDjiXSeOLmU2FvXRte_vvFy5T21qvTirJ-J-YmEGESjhNwBJ2VyLia_w3fWQJr7A=w1168-h763"/></div>
+            <div class="col-xs-12 text-center"><img class="img-circle" src="/images/cry.png"/></div>
             <div class="col-xs-12 text-center" id="cry_count">{{ cry_count }}</div>
         </div>
       </div>
     </div>
     <script type="text/javascript">
+      function update_mood(){
+        $.get("/mood",
+                function(data){
+                  $("#mood").text("You are sad today")
+                }
+              );
+      }
       $(document).ready(
         function(){
           $("#smile_row").click(
@@ -38,6 +49,7 @@
               $.get("/smile_inc",
                 function(data){
                   $('#smile_count').text(data)
+                  $("#mood").text("You are happy today")
                 }
               );
             }
@@ -47,6 +59,7 @@
               $.get("/cry_inc",
                 function(data){
                   $('#cry_count').text(data)
+                  $("#mood").text("You are sad today")
                 }
               );
             }
