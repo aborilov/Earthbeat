@@ -11,29 +11,49 @@
     <script src="https://code.jquery.com/jquery.js"></script>
     <!-- Latest compiled and minified JavaScript -->
     <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.2/js/bootstrap.min.js"></script>
-    <h1>Hello World, {{ user }}</h1>
+    <h1>Hello, {{ user }}</h1>
     <br>
     {{ mood }}
     <div class="row">
-      <div class="col-xs-6" align="right">
-        <div class="row" onclick='$("#smile_form").submit()'>
-          <form method='post' role="form" id="smile_form">
-          <input type="hidden" name="mood" value="smile">
-          <div class="col-xs-9" align="center"><img src="/images/smile.jpg"/></div>
-          <div class="col-xs-9" align="center">{{ smile_count }}</div>
-          </form>
+      <div class="col-md-3 col-xs-6 col-md-offset-3">
+        <div class="row" id="smile_row">
+          <div class="col-xs-12 text-center">
+            <img class="img-circle" src="https://lh6.googleusercontent.com/T_p3KIgpwln22abjEAHTe7cKz0y8ssU4pVL71XLKtgXKWQ9-qc3v--kbnbs8F9vZ4g=w1168-h763"/>
+          </div>
+          <div class="col-xs-12 text-center" id="smile_count">{{ smile_count }}</div>
         </div>
       </div>
-      <div class="col-xs-6">
-        <div class="row" onclick='$("#cry_form").submit()'>
-          <form method='post' role="form" id="cry_form">
-            <input type="hidden" name="mood" value="cry">
-            <div class="col-xs-12" align="center"><img src="/images/cry.jpg"/></div>
-            <div class="col-xs-12" align="center">{{ cry_count }}</div>
-          </form>
+      <div class="col-md-3 col-xs-6">
+        <div class="row" id="cry_row">
+            <div class="col-xs-12 text-center"><img class="img-circle" src="https://lh3.googleusercontent.com/MknDjiXSeOLmU2FvXRte_vvFy5T21qvTirJ-J-YmEGESjhNwBJ2VyLia_w3fWQJr7A=w1168-h763"/></div>
+            <div class="col-xs-12 text-center" id="cry_count">{{ cry_count }}</div>
         </div>
       </div>
     </div>
+    <script type="text/javascript">
+      $(document).ready(
+        function(){
+          $("#smile_row").click(
+            function(){
+              $.get("/smile_inc",
+                function(data){
+                  $('#smile_count').text(data)
+                }
+              );
+            }
+          );
+          $("#cry_row").click(
+            function(){
+              $.get("/cry_inc",
+                function(data){
+                  $('#cry_count').text(data)
+                }
+              );
+            }
+          );
+        }
+      );
+    </script>
   </body>
 </html>
 {% endautoescape %}

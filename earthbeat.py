@@ -47,7 +47,6 @@ class MainPage(webapp2.RequestHandler):
             if mood:
                 template_values['mood'] = mood
                 if mood == "cry":
-                    print mood
                     counter.increment("cry_count")
                 else:
                     counter.increment("smile_count")
@@ -75,6 +74,51 @@ class MainPage(webapp2.RequestHandler):
         return self.get()
 
 
+class SmileCounter(webapp2.RequestHandler):
+
+    def get(self):
+        self.response.write(counter.get_count("smile_count"))
+
+
+class CryCounter(webapp2.RequestHandler):
+
+    def get(self):
+        self.response.write(counter.get_count("cry_count"))
+
+
+class SmileCounterInc(webapp2.RequestHandler):
+
+    def get(self):
+        counter.increment("smile_count")
+        self.response.write(counter.get_count("smile_count"))
+
+
+class CryCounterInc(webapp2.RequestHandler):
+
+    def get(self):
+        counter.increment("cry_count")
+        self.response.write(counter.get_count("cry_count"))
+
+
+class SmileCounterDec(webapp2.RequestHandler):
+
+    def get(self):
+        counter.increment("smile_count")
+        self.response.write(counter.get_count("smile_count"))
+
+
+class CryCounterDec(webapp2.RequestHandler):
+
+    def get(self):
+        counter.increment("cry_count")
+        self.response.write(counter.get_count("cry_count"))
+
 application = webapp2.WSGIApplication([
+    ('/smile', SmileCounter),
+    ('/cry', CryCounter),
+    ('/smile_inc', SmileCounterInc),
+    ('/cry_inc', CryCounterInc),
+    ('/smile_dec', SmileCounterDec),
+    ('/cry_dec', CryCounterDec),
     ('/', MainPage),
 ], debug=True)
