@@ -20,53 +20,31 @@
     </h1>
     <div class="row">
       <div class="col-md-3 col-xs-6 col-md-offset-3">
-        <div class="row" id="smile_row">
+        <div class="row" id="smile_row" onclick="$('#smile_form').submit()">
+        <form role="form" id="smile_form">
+        <input type="hidden" name="mood" value="smile"/>
           <div class="col-xs-12 text-center">
             <img class="img-circle" src="/images/smile.png"/>
           </div>
           <div class="col-xs-12 text-center" id="smile_count">{{ smile_count }}</div>
+          </form>
         </div>
       </div>
       <div class="col-md-3 col-xs-6">
-        <div class="row" id="cry_row">
+        <div class="row" id="cry_row" onclick="$('#cry_form').submit()">
+        <form role="form" id="cry_form">
+        <input type="hidden" name="mood" value="cry"/>
             <div class="col-xs-12 text-center"><img class="img-circle" src="/images/cry.png"/></div>
             <div class="col-xs-12 text-center" id="cry_count">{{ cry_count }}</div>
+        </form>
         </div>
       </div>
     </div>
+    {% if redirect %}
     <script type="text/javascript">
-      function update_mood(){
-        $.get("/mood",
-                function(data){
-                  $("#mood").text("You are sad today")
-                }
-              );
-      }
-      $(document).ready(
-        function(){
-          $("#smile_row").click(
-            function(){
-              $.get("/smile_inc",
-                function(data){
-                  $('#smile_count').text(data)
-                  $("#mood").text("You are happy today")
-                }
-              );
-            }
-          );
-          $("#cry_row").click(
-            function(){
-              $.get("/cry_inc",
-                function(data){
-                  $('#cry_count').text(data)
-                  $("#mood").text("You are sad today")
-                }
-              );
-            }
-          );
-        }
-      );
-    </script>
+    document.location = "{{ redirect }}";
+    </script>>
+    {% endif %}
   </body>
 </html>
 {% endautoescape %}

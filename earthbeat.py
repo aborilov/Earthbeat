@@ -53,7 +53,27 @@ class MainPage(webapp2.RequestHandler):
             template_values = {
                 'user': user.nickname(),
             }
-            mood = user_mood(user.user_id())
+            user_id = user.user_id()
+            mood = None
+            mood = self.request.get("mood")
+            if mood:
+                template_values["redirect"] = "/"
+                if mood == "smile":
+                    if change_mood(user_id, True):
+                        mood = True
+                        counter.increment("smile_count")
+                        poll(user_id, True)
+                    else:
+                        mood = user_mood(user.user_id())
+                else:
+                    if change_mood(user_id, False):
+                        mood = False
+                        counter.increment("cry_count")
+                        poll(user_id, False)
+                    else:
+                        mood = user_mood(user.user_id())
+            else:
+                mood = user_mood(user.user_id())
             if mood is None:
                 template_values['mood'] = ""
             else:
@@ -74,24 +94,6 @@ class MainPage(webapp2.RequestHandler):
                 p_url = p.lower()        # "AOL.com" -> "aol.com"
                 self.response.out.write('[<a href="%s">%s</a>]' % (
                     users.create_login_url(federated_identity=p_url), p_name))
-
-
-class SmileCounter(webapp2.RequestHandler):
-
-    def get(self):
-        user = users.get_current_user()
-        if user:
-            self.response.write(counter.get_count("smile_count"))
-
-
-class CryCounter(webapp2.RequestHandler):
-
-    def get(self):
-        user = users.get_current_user()
-        if user:
-            self.response.write(counter.get_count("cry_count"))
-        else:
-            self.redirect('/')
 
 
 def user_mood(user_id):
@@ -129,72 +131,6 @@ def poll(user_id, mood):
              date=datetime.datetime.now())
     m.put()
 
-
-class SmileCounterInc(webapp2.RequestHandler):
-
-    def get(self):
-        user = users.get_current_user()
-        user_id = user.user_id()
-        if user:
-            if change_mood(user_id, True):
-                counter.increment("smile_count")
-                poll(user_id, True)
-            self.response.write(counter.get_count("smile_count"))
-        else:
-            self.redirect('/')
-
-
-class CryCounterInc(webapp2.RequestHandler):
-
-    def get(self):
-        user = users.get_current_user()
-        user_id = user.user_id()
-        if user:
-            if change_mood(user_id, False):
-                counter.increment("cry_count")
-                poll(user_id, False)
-            self.response.write(counter.get_count("cry_count"))
-        else:
-            self.redirect('/')
-
-
-class SmileCounterDec(webapp2.RequestHandler):
-
-    def get(self):
-        counter.increment("smile_count")
-        self.response.write(counter.get_count("smile_count"))
-
-
-class CryCounterDec(webapp2.RequestHandler):
-
-    def get(self):
-        counter.increment("cry_count")
-        self.response.write(counter.get_count("cry_count"))
-
-
-class UserMood(webapp2.RequestHandler):
-
-    def get(self):
-        user = users.get_current_user()
-        if user:
-            mood = user_mood(user.user_id())
-            if mood is None:
-                self.redirect('/')
-            if mood:
-                self.response.write("happy")
-            else:
-                self.response.write("sad")
-        else:
-            self.redirect('/')
-
-
 application = webapp2.WSGIApplication([
-    ('/smile', SmileCounter),
-    ('/cry', CryCounter),
-    ('/smile_inc', SmileCounterInc),
-    ('/cry_inc', CryCounterInc),
-    ('/smile_dec', SmileCounterDec),
-    ('/cry_dec', CryCounterDec),
-    ('/mood', UserMood),
     ('/', MainPage),
 ], debug=True)
