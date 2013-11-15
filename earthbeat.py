@@ -6,7 +6,6 @@ logging.getLogger().setLevel(logging.DEBUG)
 
 from google.appengine.api import users
 from google.appengine.ext import db
-from google.appengine.api import memcache
 
 import jinja2
 import webapp2
@@ -29,9 +28,6 @@ openIdProviders = (
     # add more here
 )
 
-memcache.add(key="smile_count", value="0")
-memcache.add(key="cry_count", value="0")
-
 
 class Mood(db.Model):
     mood = db.BooleanProperty(indexed=True)
@@ -47,33 +43,25 @@ class User(db.Model):
 
 class MainPage(webapp2.RequestHandler):
 
+    def post(self):
+        user = users.get_current_user()
+        if user:
+            user_id = user.user_id()
+            mood = self.request.get("mood")
+            if mood:
+                if mood == "smile":
+                    change_mood(user_id, True)
+                else:
+                    change_mood(user_id, False)
+            self.redirect('/')
+
     def get(self):
         user = users.get_current_user()
         if user:
             template_values = {
                 'user': user.nickname(),
             }
-            user_id = user.user_id()
-            mood = None
-            mood = self.request.get("mood")
-            if mood:
-                template_values["redirect"] = "/"
-                if mood == "smile":
-                    if change_mood(user_id, True):
-                        mood = True
-                        counter.increment("smile_count")
-                        poll(user_id, True)
-                    else:
-                        mood = user_mood(user.user_id())
-                else:
-                    if change_mood(user_id, False):
-                        mood = False
-                        counter.increment("cry_count")
-                        poll(user_id, False)
-                    else:
-                        mood = user_mood(user.user_id())
-            else:
-                mood = user_mood(user.user_id())
+            mood = user_mood(user.user_id())
             if mood is None:
                 template_values['mood'] = ""
             else:
@@ -81,7 +69,6 @@ class MainPage(webapp2.RequestHandler):
                     template_values['mood'] = "happy"
                 else:
                     template_values['mood'] = "sad"
-
             template_values['smile_count'] = counter.get_count("smile_count")
             template_values['cry_count'] = counter.get_count("cry_count")
 
@@ -99,10 +86,16 @@ class MainPage(webapp2.RequestHandler):
 def user_mood(user_id):
     q = db.Query(User).filter(
         "name", user_id).fetch(limit=1)
-    if q:
+    if q and q[0].date.date() == datetime.datetime.now().date():
         return q[0].mood
+    return None
+
+
+def increment(mood):
+    if mood:
+        counter.increment("smile_count")
     else:
-        return None
+        counter.increment("cry_count")
 
 
 def change_mood(user_id, mood):
@@ -111,18 +104,19 @@ def change_mood(user_id, mood):
     now = datetime.datetime.now()
     if q:
         user = q[0]
-        if user.mood != mood and user.date.date() != now.date():
+        if 1:  # user.mood != mood and user.date.date() != now.date():
             user.mood = mood
             user.date = now
             user.put()
-            return True
+            poll(user_id, mood)
+            increment(mood)
     else:
         u = User(mood=mood,
                  name=user_id,
                  date=now)
         u.put()
-        return True
-    return False
+        poll(user_id, mood)
+        increment(mood)
 
 
 def poll(user_id, mood):

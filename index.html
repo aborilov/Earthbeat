@@ -21,7 +21,7 @@
     <div class="row">
       <div class="col-md-3 col-xs-6 col-md-offset-3">
         <div class="row" id="smile_row" onclick="$('#smile_form').submit()">
-        <form role="form" id="smile_form">
+        <form method="POST" role="form" id="smile_form">
         <input type="hidden" name="mood" value="smile"/>
           <div class="col-xs-12 text-center">
             <img class="img-circle" src="/images/smile.png"/>
@@ -32,7 +32,7 @@
       </div>
       <div class="col-md-3 col-xs-6">
         <div class="row" id="cry_row" onclick="$('#cry_form').submit()">
-        <form role="form" id="cry_form">
+        <form method="POST" role="form" id="cry_form">
         <input type="hidden" name="mood" value="cry"/>
             <div class="col-xs-12 text-center"><img class="img-circle" src="/images/cry.png"/></div>
             <div class="col-xs-12 text-center" id="cry_count">{{ cry_count }}</div>
