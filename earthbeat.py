@@ -53,7 +53,7 @@ class MainPage(webapp2.RequestHandler):
                     change_mood(user_id, True)
                 else:
                     change_mood(user_id, False)
-            self.redirect('/')
+        self.redirect('/')
 
     def get(self):
         user = users.get_current_user()
